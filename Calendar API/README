@@ -12,3 +12,5 @@ Whilst running api.py in use Postman to test out the API:
 ->The following URL deletes an event http://localhost:5000/calendar/api/v1.0/events/Dinner, in Postman: specify delete method
 
 Running consumeAPI.py extarcts all information from web service for Calendar API
+
+The following link can be used to view the collection on Postman https://www.getpostman.com/collections/fec2fe4f956d6afc8cc4
