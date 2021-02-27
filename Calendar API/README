@@ -1,0 +1,14 @@
+
+As an example, I created a very basic API, I wrote a calendar application and designed a web service for it. The API was created using Python’s library called Flask, a web application framework.  
+Our database represents a calendar, it is a list of dictionaries, each dictionary represents an event, each event has a set of five key-value pairs, consider the following example of an event in our calendar: 
+{"id": 0 , "title": "Meeting", "user": "Hamdan", "audience": "Danish", "date": "02-25”}
+
+Whilst running api.py in use Postman to test out the API:
+->Our base URL is http://localhost:5000 
+->The following URL gets all the events http://localhost:5000/calendar/api/v1.0/events/all , in Postman: specify get method
+-> The following URL gets a certain event http://localhost:5000/calendar/api/v1.0/events/1, in Postman: specify get method
+->The following URL creates a new event http://localhost:5000/calendar/api/v1.0/events, in Postman: specify post method and JSON object in Body, the JSON object contains an id, title, user, audience, date along with their keys
+->The following URL updates an event http://localhost:5000/calendar/api/v1.0/events/02-25, in Postman: specify put method and JSON object in Body, the JSON object contains a date along with its key
+->The following URL deletes an event http://localhost:5000/calendar/api/v1.0/events/Dinner, in Postman: specify delete method
+
+Running consumeAPI.py extarcts all information from web service for Calendar API
