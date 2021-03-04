@@ -17,16 +17,22 @@ from gcsa.reminders import EmailReminder, PopupReminder
 
 def object_introspection_for_date_using_pandas(events):
     '''
-    The following function creates a dataframe with three columsn: Total, Personal and Shared,
+    The following function creates a dataframe with six columsn: Total, Personal, Shared, Personal hrs, Shared Hrs, Total Hrs
     intially it is empty with no indexes. We iterate over the events in our caledar, using the month/day as
     indexes of our dataframe. If an index is present,it means that day is present and we will update its category of event
-    If an event is not present we will create a new series and append it to the dataframe
+    If an event is not present we will create a new series and append it to the dataframe. We will extract information realted to the
+    start and end time to determine time spent in each of the categories
     
     '''
     
-    #Create an empty dataframe with three columns: Total, Personal, Shared
-    categorized_df = pd.DataFrame(columns=['Personal','Shared','Total'])
+    #Create an empty dataframe with six columns: Total, Personal, Shared, Personal Hrs, Shared Hrs and Total Hrs
+    categorized_df = pd.DataFrame(columns=['Personal','Shared','Total', 'Personal Hrs', 'Shared Hrs', 'Total Hrs'])
+    
+    #Month Day Year
+    mdy = ['month', 'day', 'year']    
+    hms = ['hour', 'minute', 'second']
                                            
+    
     
     for event in events:
         
@@ -34,18 +40,17 @@ def object_introspection_for_date_using_pandas(events):
         personal = False
         shared = False
     
-        #Month Day Year
-        mdy = ['month', 'day', 'year']    
-        hms = ['hour', 'minute', 'second']
         
-        #Extract start date to index into the correct location of the day_month_matrix
+        #Extract start date to index into the correct location of the dataframe
         start_of_event = getattr(event, "start")
         start_mdy = [getattr(start_of_event, _mdy) for _mdy in mdy]
-        default_time = timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)
         end_of_event = getattr(event, "end")
         end_mdy = [getattr(end_of_event, _mdy) for _mdy in mdy]
         
+        #date_str is the month/day string that will used to index into the dataframe
         date_str = str(start_mdy[0])+'/'+str(start_mdy[1])
+        
+        #Initialize all hours/minutes/seconds to zero, personal events such as Birthdays have no end time thus their time is zero
         start_hour=start_min=start_sec=end_hour=end_min=end_sec = 0
         
         #Get starting and end times
@@ -57,44 +62,50 @@ def object_introspection_for_date_using_pandas(events):
             start_hms = [0,0,0]
             end_hms = [0,0,0]
         
+        #Create a datetime object for start and end date and time
         start_time = datetime(year = start_mdy[2], month = start_mdy[0], day = start_mdy[1] , hour = start_hms[0] , minute = start_hms[1], second = start_hms[2])
         
         end_time = datetime(year = end_mdy[2], month = end_mdy[0], day = end_mdy[1] , hour = end_hms[0] , minute = end_hms[1], second = end_hms[2])
         
+        #Determine time spend and convert into hours
         time_spent = end_time - start_time
+        time_spent = time_spent.seconds / 3600
         
         #Get the attendees of the respective event
         attendees_of_event = getattr(event, "attendees")
         
+        #If no attendees present it is a presonal event
         if len(attendees_of_event) == 0:
             personal = True
         else:
             shared = True
         
+        #if the entry does not exist create a new one using the month/day string as the index
         if date_str not in categorized_df.index:
             
             if personal == True:
-                new_event_series = pd.Series(data=[1,0,1], index=categorized_df.columns, name=date_str)
-                #new_event_series = pd.Series(data=[1,0,1,default_time,default_time,default_time], index=categorized_df.columns, name=date_str)
-                #categorized_df.loc[date_str, 'Personal Hrs'] = time_spent
+               
+                new_event_series = pd.Series(data=[1,0,0,time_spent,0,0], index=categorized_df.columns, name=date_str)
+                
             else:
-                new_event_series = pd.Series(data=[0,1,1], index=categorized_df.columns, name=date_str)
-                #new_event_series = pd.Series(data=[0,1,1,default_time,default_time,default_time], index=categorized_df.columns, name=date_str)
-                #categorized_df.loc[date_str, 'Shared Hrs'] = time_spent
+                
+                new_event_series = pd.Series(data=[0,1,0,0,time_spent,0], index=categorized_df.columns, name=date_str)
             
             categorized_df = categorized_df.append(new_event_series)
             
-        
+        #if an entry exist access it using month/day string and increment value as well as time
         else:
             if personal == True:
                 categorized_df.loc[date_str, 'Personal'] += 1
-               # categorized_df.loc[date_str, 'Personal Hrs'] = categorized_df.loc[date_str, 'Personal Hrs'] + time_spent    
+                categorized_df.loc[date_str, 'Personal Hrs'] += time_spent    
             else:
                 categorized_df.loc[date_str, 'Shared'] += 1 
-               # categorized_df.loc[date_str, 'Shared Hrs'] += time_spent
+                categorized_df.loc[date_str, 'Shared Hrs'] += time_spent
+                
             
-            categorized_df.loc[date_str, 'Total'] += 1
-           # categorized_df.loc[date_str, 'Total Hrs'] = categorized_df.loc[date_str, 'Total Hrs'] + categorized_df.loc[date_str, 'Personal Hrs'] + categorized_df.loc[date_str, 'Shared Hrs']  
+        #every event increments the total hours for that day, add hours of both categories to get total hours spent
+        categorized_df.loc[date_str, 'Total'] += 1
+        categorized_df.loc[date_str, 'Total Hrs'] = categorized_df.loc[date_str, 'Personal Hrs'] + categorized_df.loc[date_str, 'Shared Hrs']  
             
         
     
@@ -189,7 +200,7 @@ def write_to_file(events_list):
 if __name__ == "__main__":
     
     calendar = authenticate("mhamdansulaiman@gmail.com")
-    events_between_dates = get_events(calendar, (1 / Jan / 2021)[12:00], (31 / Mar / 2021)[12:00], True)
+    events_between_dates = get_events(calendar, (31 / Dec / 2020)[23:00], (31 / Mar / 2021)[23:00], True)
     #write_to_file(events_between_dates)
     # day_month_matrix = create_month_date_matrix()
     # events_matrix, total_events_per_month = object_introspection_for_date_using_numpy(events_between_dates, day_month_matrix)
@@ -199,9 +210,3 @@ if __name__ == "__main__":
     # print("Feb: ",total_events_per_month[1])
     # print("Mar: ",total_events_per_month[2])   
     categorized_df = object_introspection_for_date_using_pandas(events_between_dates)
-    
-    
-    
-
-
-
