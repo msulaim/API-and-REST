@@ -125,7 +125,7 @@ def object_introspection_using_pandas(categories_objs):
     '''
     
     #Create an empty dataframe with eight columns: Category,Calendar,Event Description, Start Time, End Time, Day, Month, Year
-    categorized_df = pd.DataFrame(columns=['Category','Calendar','Event Description', 'Shared', 'Un-Shared', 'Start Time', 'End Time', 'Day', 'Month', 'Year'])
+    categorized_df = pd.DataFrame(columns=['Category','Calendar','Event Description', 'Shared', 'Un-Shared', 'Start Date', 'End Date', 'Start Time', 'End Time'])
     
     #Month Day Year
     mdy = ['month', 'day', 'year']    
@@ -151,8 +151,7 @@ def object_introspection_using_pandas(categories_objs):
                 end_of_event = getattr(event, "end")
                 end_mdy = [getattr(end_of_event, _mdy) for _mdy in mdy]
                 
-                #Initialize all hours/minutes/seconds to zero, personal events such as Birthdays have no end time thus their time is zero
-                start_hour=start_min=start_sec=end_hour=end_min=end_sec = 0
+                
 
                 #Get starting and end times
                 if hasattr(start_of_event,'hour'):
@@ -163,11 +162,10 @@ def object_introspection_using_pandas(categories_objs):
                     start_hms = [0,0,0]
                     end_hms = [0,0,0]
                 
-                #Create a datetime object for start and end date and time
-                start_time = datetime(year = start_mdy[2], month = start_mdy[0], day = start_mdy[1] , hour = start_hms[0] , minute = start_hms[1], second = start_hms[2])
-                
-                end_time = datetime(year = end_mdy[2], month = end_mdy[0], day = end_mdy[1] , hour = end_hms[0] , minute = end_hms[1], second = end_hms[2])                
-                        
+                start_date = str(start_mdy[0])+'.'+ str(start_mdy[1]) +'.'+ str(start_mdy[2])
+                start_time = ' '+ str(start_hms[0])+':'+str(start_hms[1])+':'+str(start_hms[2])
+                end_date = str(end_mdy[0])+'.'+ str(end_mdy[1]) +'.'+ str(end_mdy[2])        
+                end_time = ' '+ str(end_hms[0])+':'+str(end_hms[1])+':'+str(end_hms[2])
                 #Get the attendees of the respective event
                 attendees_of_event = getattr(event, "attendees")
                 
@@ -177,7 +175,7 @@ def object_introspection_using_pandas(categories_objs):
                 else:
                      shared = True
                 #Create a new entry to add to the DataFrame
-                new_event_series = pd.Series(data = [category, calendar_name, desp, shared, unshared, start_time, end_time, start_mdy[1], start_mdy[0], start_mdy[2] ], index=categorized_df.columns)
+                new_event_series = pd.Series(data = [category, calendar_name, desp, shared, unshared, start_date, end_date, start_time, end_time ], index=categorized_df.columns)
                 
                 #Add to the Dataframe
                 categorized_df = categorized_df.append(new_event_series, ignore_index = True)
