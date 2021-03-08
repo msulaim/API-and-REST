@@ -25,7 +25,9 @@ which calendar to use, email addresses and Calendar IDs
 import yaml
 import gcsa
 import os
+import pandas as pd
 from beautiful_date import *
+from datetime import datetime, date, time, timedelta
 from gcsa.google_calendar import GoogleCalendar
 def user_configuration():
     '''
@@ -115,7 +117,74 @@ def get_events(calendar, start_from, end_at, singleEvents):
     
     return events_between_dates
 
+def object_introspection_using_pandas(categories_objs):
+    '''
+    The following function creates eight columns:  Category,Calendar,Event Description, Start Time, End Time, Day, Month, Year
+    We will iterate over the list of Category objects, access their Google Calendar object and call get_events() on it. We will 
+    then iterate over the events, extracting the description, start and end time as well the day/month/year
+    '''
+    
+    #Create an empty dataframe with eight columns: Category,Calendar,Event Description, Start Time, End Time, Day, Month, Year
+    categorized_df = pd.DataFrame(columns=['Category','Calendar','Event Description', 'Shared', 'Un-Shared', 'Start Time', 'End Time', 'Day', 'Month', 'Year'])
+    
+    #Month Day Year
+    mdy = ['month', 'day', 'year']    
+    hms = ['hour', 'minute', 'second']
+    
+    #Iterate over Category objects, calling the get_events mehtod on their Google Calendar, extracting the category name, calendar name and add to DataFrame
+    for category_obj in categories_obj.list_of_Category_objs:
+        for name,calendar in category_obj.name_calendar_dict.items():
+            
+            #Call get_events to get events from specified Google Calendar
+            events = get_events(calendar[0],(31 / Dec / 2020)[23:00], (31 / Mar / 2021)[23:00], True)
+            for event in events:
+                
+                unshared = False
+                shared = False
+                category = category_obj.name
+                calendar_name = name
+                desp = getattr(event, "summary")
+                
+                #Extract start and end date
+                start_of_event = getattr(event, "start")
+                start_mdy = [getattr(start_of_event, _mdy) for _mdy in mdy]
+                end_of_event = getattr(event, "end")
+                end_mdy = [getattr(end_of_event, _mdy) for _mdy in mdy]
+                
+                #Initialize all hours/minutes/seconds to zero, personal events such as Birthdays have no end time thus their time is zero
+                start_hour=start_min=start_sec=end_hour=end_min=end_sec = 0
 
+                #Get starting and end times
+                if hasattr(start_of_event,'hour'):
+                      start_hms = [getattr(start_of_event, _hms) for _hms in hms]
+                      end_hms = [getattr(end_of_event, _hms) for _hms in hms]
+                
+                else:
+                    start_hms = [0,0,0]
+                    end_hms = [0,0,0]
+                
+                #Create a datetime object for start and end date and time
+                start_time = datetime(year = start_mdy[2], month = start_mdy[0], day = start_mdy[1] , hour = start_hms[0] , minute = start_hms[1], second = start_hms[2])
+                
+                end_time = datetime(year = end_mdy[2], month = end_mdy[0], day = end_mdy[1] , hour = end_hms[0] , minute = end_hms[1], second = end_hms[2])                
+                        
+                #Get the attendees of the respective event
+                attendees_of_event = getattr(event, "attendees")
+                
+                 #If no attendees present it is a presonal event
+                if len(attendees_of_event) == 0:
+                     unshared = True
+                else:
+                     shared = True
+                #Create a new entry to add to the DataFrame
+                new_event_series = pd.Series(data = [category, calendar_name, desp, shared, unshared, start_time, end_time, start_mdy[1], start_mdy[0], start_mdy[2] ], index=categorized_df.columns)
+                
+                #Add to the Dataframe
+                categorized_df = categorized_df.append(new_event_series, ignore_index = True)
+                
+    return categorized_df
+    
+   
 class Category():
     '''
     A Category object has the following attributes:
@@ -179,5 +248,5 @@ if __name__ == "__main__":
     
     categories_obj = user_configuration()
     authenticate(categories_obj)
-    
+    categorized_df = object_introspection_using_pandas(categories_obj)
     
