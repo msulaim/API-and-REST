@@ -43,11 +43,6 @@ def user_configuration():
             print('There is no file named ', filename)
             invalid_file = False
 
-    #Load the content of the .yaml file, it can contain multiple documents
-    data = yaml.load_all(input_file, Loader=yaml.FullLoader)
-    
-   
-    
     return
 if __name__ == "__main__":
     
