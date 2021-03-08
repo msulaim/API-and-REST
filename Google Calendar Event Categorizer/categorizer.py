@@ -25,6 +25,7 @@ which calendar to use, email addresses and Calendar IDs
 import yaml
 import gcsa
 import os
+from beautiful_date import *
 from gcsa.google_calendar import GoogleCalendar
 def user_configuration():
     '''
@@ -72,6 +73,7 @@ def authenticate(categories_obj):
     it adds the name and the created GoogleCalendar to the respective Category object
     '''
     
+    #Path to access Google Calendar API crednetials
     path_credentials = os.path.join(os.getcwd(),'.credentials','credentials.json')
     file_id = 1
     
@@ -92,9 +94,27 @@ def authenticate(categories_obj):
             #Print to show user that it is authenticating and which email address they should use to sign in
             print("{}{} {}".format(key2,':', value2))
             file_id += 1
-        
     
     return
+
+
+def get_events(calendar, start_from, end_at, singleEvents):
+    '''
+    Input Value: user's calendar, object of type GoogleCalendar
+    
+    The following function gets all events from the user's google calendar and returns the them
+    
+    Return Value: Generator object, can be iterated over
+    '''
+    #Create Start and End Date Object
+    start =  start_from
+    end = end_at
+    
+    #Get all events in the time frame specified
+    events_between_dates = calendar.get_events(start,end,order_by='startTime',single_events=singleEvents)
+    
+    return events_between_dates
+
 
 class Category():
     '''
@@ -159,5 +179,5 @@ if __name__ == "__main__":
     
     categories_obj = user_configuration()
     authenticate(categories_obj)
-    x = 1
+    
     
