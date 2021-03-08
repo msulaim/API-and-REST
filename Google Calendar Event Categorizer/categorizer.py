@@ -22,3 +22,28 @@ which calendar to use, email addresses and Calendar IDs
          
  
 '''
+import yaml
+def user_configuration():
+    '''
+    Purpose: The following function reads in a .yaml file in the form of a dictionary to determine the
+             user's configuration. The .yaml file defines which calendars to use, their Calendar IDs, associated
+             email addresses
+    
+    Output: nested dictionary 
+    '''
+    valid_file = False
+    
+    #Perform file handling, if file cannot be read throw exception and prompt user again
+    while not valid_file:
+        filename = input('Enter the input file name, including its extension: ')
+        try:
+            input_file = open(filename, 'r')
+            valid_file = True
+        except IOError:
+            print('There is no file named ', filename)
+            invalid_file = False
+
+    return
+if __name__ == "__main__":
+    
+    config = user_configuration()
