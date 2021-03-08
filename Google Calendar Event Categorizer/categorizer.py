@@ -48,8 +48,20 @@ def user_configuration():
     #Load the content of the .yaml file, it can contain multiple documents
     data = yaml.load_all(input_file, Loader=yaml.FullLoader)
     
+    #Extract the name of the Category, calendar ids and store data in the Category object
+    #Add each Category object to the Categories object
+    for nested_dicts in data:
+        categories = nested_dicts.keys()
+        categories_obj = Categories()
+        for category in categories:
+            key = category
+            calendar_ids = nested_dicts[key]["calendar_ids"]
+            category_obj = Category(key, calendar_ids)
+            categories_obj.addTo(category_obj)
     
-    return data
+            
+    
+    return categories_obj
 def authenticate(data):
     '''    
     Input Value:data read from .yaml file, list of nested dictionaries
@@ -59,6 +71,9 @@ def authenticate(data):
     Return Value: returns the user's calendar, object of type GoogleCalendar'
     '''
     
+    
+    return
+
 class Category():
     '''
     A Category object has the following attributes:
@@ -67,7 +82,7 @@ class Category():
         name: the name of the category
     '''
     
-    def __init__(self, _nameofCategory):
+    def __init__(self, _nameofCategory, calendar_ids):
         
         #Name of the category for example "Work"
         self.name = _nameofCategory
@@ -76,7 +91,12 @@ class Category():
         #and as the value calendars authenticated using GoogleCalendar object from gcsa
         self.name_calendar_dict = {}
         
-    def __add__(self, _nameofCalendar, calendar):
+        #Contains the nested calendar_ids dictionary, where the keys are the name of the calendar and value is
+        #calendar id
+        self.calendar_ids_dict = calendar_ids
+        
+        
+    def addTo(self, _nameofCalendar, calendar):
         
         '''
         The following function overrides the __add__ method, it sets the key as the name of the calendar
@@ -93,6 +113,23 @@ class Category():
         else:
             self.name_calendar_dict[key].append(value)
             
+class Categories():
+    
+    # Number of Category objects
+    count = 0
+    '''
+    A Categories object stores multiple Category object and has the following attributes:
+        list_of_Category_objects: a list containing Category objects
+    '''
+    def __init__(self):
+        self.list_of_Category_objs = []
+    
+    def addTo(self, Category):
+        self.list_of_Category_objs.append(Category)
+        Categories.count += 1
+        
+        
 if __name__ == "__main__":
     
     config = user_configuration()
+    #authenticate(config)
