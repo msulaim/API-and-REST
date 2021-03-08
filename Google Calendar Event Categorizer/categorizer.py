@@ -24,6 +24,7 @@ which calendar to use, email addresses and Calendar IDs
 '''
 import yaml
 import gcsa
+import os
 from gcsa.google_calendar import GoogleCalendar
 def user_configuration():
     '''
@@ -31,7 +32,7 @@ def user_configuration():
              user's configuration. The .yaml file defines which calendars to use, their Calendar IDs, associated
              email addresses
     
-    Output: nested dictionary 
+    Output: Categories object, which contains a list of Category objects 
     '''
     valid_file = False
     
@@ -56,21 +57,42 @@ def user_configuration():
         for category in categories:
             key = category
             calendar_ids = nested_dicts[key]["calendar_ids"]
-            category_obj = Category(key, calendar_ids)
+            calendar_email_ids = nested_dicts[key]["email_ids"]
+            category_obj = Category(key, calendar_email_ids, calendar_ids)
             categories_obj.addTo(category_obj)
     
             
     
     return categories_obj
-def authenticate(data):
+def authenticate(categories_obj):
     '''    
     Input Value:data read from .yaml file, list of nested dictionaries
     
-    The following fucntion performs authentication for accessing Google Calendar
-    
-    Return Value: returns the user's calendar, object of type GoogleCalendar'
+    The following fucntion performs authentication for accessing Google Calendar using the calendar ids in a Catgory object
+    it adds the name and the created GoogleCalendar to the respective Category object
     '''
     
+    path_credentials = os.path.join(os.getcwd(),'.credentials','credentials.json')
+    file_id = 1
+    
+    for category_obj in categories_obj.list_of_Category_objs:
+        print("\nAuthenticating")
+        for (key1, value1),(key2, value2) in zip(category_obj.name_calendar_ids_dict.items(), category_obj.name_email_id_dict.items()):
+            
+            #Specify filename and path for the token that will be generated during authentication
+            filename = 'token'+str(file_id)+'.pickle'
+            path_tokens = os.path.join(os.getcwd(),'.tokens',filename)
+            
+            #Perform authentication using the value of name_calendar_ids_dict, the value is the Calendar ID
+            calendar = GoogleCalendar(calendar=value1, credentials_path=path_credentials, token_path=path_tokens, save_token=True)
+            
+            #Use the addTo function, to add to the name_calendar_dict which maps the name to the GoogleCalendar Object
+            category_obj.addTo(key1,calendar)
+            
+            #Print to show user that it is authenticating and which email address they should use to sign in
+            print("{}{} {}".format(key2,':', value2))
+            file_id += 1
+        
     
     return
 
@@ -82,7 +104,7 @@ class Category():
         name: the name of the category
     '''
     
-    def __init__(self, _nameofCategory, calendar_ids):
+    def __init__(self, _nameofCategory, calendar_email_ids, calendar_ids):
         
         #Name of the category for example "Work"
         self.name = _nameofCategory
@@ -91,9 +113,13 @@ class Category():
         #and as the value calendars authenticated using GoogleCalendar object from gcsa
         self.name_calendar_dict = {}
         
+        
+        #Dictionary where keys are the name of calendar and values are emails
+        self.name_email_id_dict = calendar_email_ids
+        
         #Contains the nested calendar_ids dictionary, where the keys are the name of the calendar and value is
         #calendar id
-        self.calendar_ids_dict = calendar_ids
+        self.name_calendar_ids_dict = calendar_ids
         
         
     def addTo(self, _nameofCalendar, calendar):
@@ -131,5 +157,7 @@ class Categories():
         
 if __name__ == "__main__":
     
-    config = user_configuration()
-    #authenticate(config)
+    categories_obj = user_configuration()
+    authenticate(categories_obj)
+    x = 1
+    
