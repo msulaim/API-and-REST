@@ -23,6 +23,8 @@ which calendar to use, email addresses and Calendar IDs
  
 '''
 import yaml
+import gcsa
+from gcsa.google_calendar import GoogleCalendar
 def user_configuration():
     '''
     Purpose: The following function reads in a .yaml file in the form of a dictionary to determine the
@@ -46,9 +48,51 @@ def user_configuration():
     #Load the content of the .yaml file, it can contain multiple documents
     data = yaml.load_all(input_file, Loader=yaml.FullLoader)
     
-   
     
-    return
+    return data
+def authenticate(data):
+    '''    
+    Input Value:data read from .yaml file, list of nested dictionaries
+    
+    The following fucntion performs authentication for accessing Google Calendar
+    
+    Return Value: returns the user's calendar, object of type GoogleCalendar'
+    '''
+    
+class Category():
+    '''
+    A Category object has the following attributes:
+        name_calendar_dict : a list of dictionaries, each containing the name of the calendar as the key and
+                    and as the value calendars authenticated using GoogleCalendar object from gcsa
+        name: the name of the category
+    '''
+    
+    def __init__(self, _nameofCategory):
+        
+        #Name of the category for example "Work"
+        self.name = _nameofCategory
+        
+        #Empty list of dictionaries, each containing the name of the calendar as the key and
+        #and as the value calendars authenticated using GoogleCalendar object from gcsa
+        self.name_calendar_dict = {}
+        
+    def __add__(self, _nameofCalendar, calendar):
+        
+        '''
+        The following function overrides the __add__ method, it sets the key as the name of the calendar
+        if there is no calendar in the dictionary create a new list and append to it, if there just append
+        '''
+        key = _nameofCalendar
+        value = calendar
+        
+        if self.name_calendar_dict.get(key) is None:
+            
+            self.name_calendar_dict[key] = []
+            self.name_calendar_dict[key].append(value)
+        
+        else:
+            self.name_calendar_dict[key].append(value)
+            
 if __name__ == "__main__":
     
     config = user_configuration()
