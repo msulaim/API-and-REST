@@ -19,6 +19,8 @@ which calendar to use, email addresses and Calendar IDs
   datetime: module useful for finding duration between two dates
   
   pandas: used to create DataFrames, which is our data strcuture for storing data
+  
+  os: used to get path for saving tokens and credentials
          
  
 '''
@@ -127,10 +129,7 @@ def object_introspection_using_pandas(categories_objs):
     #Create an empty dataframe with eight columns: Category,Calendar,Event Description, Start Time, End Time, Day, Month, Year
     categorized_df = pd.DataFrame(columns=['Category','Calendar','Event Description', 'Shared', 'Un-Shared', 'Start Date', 'End Date', 'Start Time', 'End Time'])
     
-    #Month Day Year
-    mdy = ['month', 'day', 'year']    
-    hms = ['hour', 'minute', 'second']
-    
+   
     #Iterate over Category objects, calling the get_events mehtod on their Google Calendar, extracting the category name, calendar name and add to DataFrame
     for category_obj in categories_obj.list_of_Category_objs:
         for name,calendar in category_obj.name_calendar_dict.items():
@@ -145,27 +144,18 @@ def object_introspection_using_pandas(categories_objs):
                 calendar_name = name
                 desp = getattr(event, "summary")
                 
-                #Extract start and end date
+                #Extract start and end date, these are both datetime objects
                 start_of_event = getattr(event, "start")
-                start_mdy = [getattr(start_of_event, _mdy) for _mdy in mdy]
                 end_of_event = getattr(event, "end")
-                end_mdy = [getattr(end_of_event, _mdy) for _mdy in mdy]
+                
+                #Convert the datetime objects into strings using strftime for adding to dataframe
+                start_date = start_of_event.strftime("%m/%d/%Y")
+                start_time = start_of_event.strftime("%H:%M:%S")
+                end_date = end_of_event.strftime("%m/%d/%Y")
+                end_time = end_of_event.strftime("%H:%M:%S")
                 
                 
-
-                #Get starting and end times
-                if hasattr(start_of_event,'hour'):
-                      start_hms = [getattr(start_of_event, _hms) for _hms in hms]
-                      end_hms = [getattr(end_of_event, _hms) for _hms in hms]
                 
-                else:
-                    start_hms = [0,0,0]
-                    end_hms = [0,0,0]
-                
-                start_date = str(start_mdy[0])+'.'+ str(start_mdy[1]) +'.'+ str(start_mdy[2])
-                start_time = ' '+ str(start_hms[0])+':'+str(start_hms[1])+':'+str(start_hms[2])
-                end_date = str(end_mdy[0])+'.'+ str(end_mdy[1]) +'.'+ str(end_mdy[2])        
-                end_time = ' '+ str(end_hms[0])+':'+str(end_hms[1])+':'+str(end_hms[2])
                 #Get the attendees of the respective event
                 attendees_of_event = getattr(event, "attendees")
                 
