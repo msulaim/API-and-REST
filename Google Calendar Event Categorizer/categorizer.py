@@ -28,6 +28,8 @@ import yaml
 import gcsa
 import os
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 from beautiful_date import *
 from datetime import datetime, date, time, timedelta
 from gcsa.google_calendar import GoogleCalendar
@@ -89,19 +91,53 @@ def authenticate(categories_obj):
             filename = 'token'+str(file_id)+'.pickle'
             path_tokens = os.path.join(os.getcwd(),'.tokens',filename)
             
+            #Print to show user that it is authenticating and which email address they should use to sign in
+            print("{}{} {}".format(key2,':', value2))
+            
             #Perform authentication using the value of name_calendar_ids_dict, the value is the Calendar ID
             calendar = GoogleCalendar(calendar=value1, credentials_path=path_credentials, token_path=path_tokens, save_token=True)
             
             #Use the addTo function, to add to the name_calendar_dict which maps the name to the GoogleCalendar Object
             category_obj.addTo(key1,calendar)
             
-            #Print to show user that it is authenticating and which email address they should use to sign in
-            print("{}{} {}".format(key2,':', value2))
             file_id += 1
     
     return
 
 
+def get_timeline():
+    '''
+    The following function prompts the user for the timeframe they want to extract events, if no timeframe then use default of -30/+15 from current day 
+    '''
+    invalid_response = True
+    while invalid_response:
+        
+        timeframe = input("Enter 'timeframe' to specify start and end dates or enter 'default' to use -30/+15 days from current day: ")
+        if timeframe == 'timeframe' or timeframe == 'default':
+            invalid_response = False
+        else:
+            invalid_response = True
+        
+    if timeframe == 'timeframe':
+        invalid_date = True
+        while invalid_date is True:
+            start_date = input("Enter the start date mm/dd/yyyy: ")
+            end_date = input("Enter the end date mm/dd/yyyy: ")
+            try:
+                start_date = datetime.strptime(start_date, "%m/%d/%Y")
+                end_date = datetime.strptime(end_date, "%m/%d/%Y")
+                invalid_date = False
+            except ValueError:
+                print("\nError: date does not match format: mm/dd/yyyy")
+                invalid_date = True
+        
+    else:
+        start_date = (datetime.today() - timedelta(days=30)).date()
+        end_date = (datetime.today() + timedelta(days=15)).date()
+        
+    return start_date, end_date
+    
+    
 def get_events(calendar, start_from, end_at, singleEvents):
     '''
     Input Value: user's calendar, object of type GoogleCalendar
@@ -115,11 +151,11 @@ def get_events(calendar, start_from, end_at, singleEvents):
     end = end_at
     
     #Get all events in the time frame specified
-    events_between_dates = calendar.get_events(start,end,order_by='startTime',single_events=singleEvents)
+    events_between_dates = calendar.get_events(time_min=start,time_max=end,order_by='startTime',single_events=singleEvents)
     
     return events_between_dates
 
-def object_introspection_using_pandas(categories_objs):
+def object_introspection_using_pandas(categories_objs, start, end):
     '''
     The following function creates eight columns:  Category,Calendar,Event Description, Start Time, End Time, Day, Month, Year
     We will iterate over the list of Category objects, access their Google Calendar object and call get_events() on it. We will 
@@ -135,7 +171,7 @@ def object_introspection_using_pandas(categories_objs):
         for name,calendar in category_obj.name_calendar_dict.items():
             
             #Call get_events to get events from specified Google Calendar
-            events = get_events(calendar[0],(31 / Dec / 2020)[23:00], (31 / Mar / 2021)[23:00], True)
+            events = get_events(calendar[0],start, end, True)
             for event in events:
                 
                 unshared = False
@@ -154,7 +190,9 @@ def object_introspection_using_pandas(categories_objs):
                 end_date = end_of_event.strftime("%m/%d/%Y")
                 end_time = end_of_event.strftime("%H:%M:%S")
                 
-                
+                #For reminders such as Birthdays, since they do not have duration
+                if start_time == "00:00:00" and end_time == "00:00:00":
+                    end_date = start_date
                 
                 #Get the attendees of the respective event
                 attendees_of_event = getattr(event, "attendees")
@@ -170,9 +208,32 @@ def object_introspection_using_pandas(categories_objs):
                 #Add to the Dataframe
                 categorized_df = categorized_df.append(new_event_series, ignore_index = True)
                 
-    return categorized_df
-    
+    return categorized_df    
    
+def analysis(categorized_df, start, end):
+    ''' 
+    The following function analyzes the dataframe created, informing the user the percentage of time they spent in the specified categories over
+    the timeframe mentioned
+    '''
+    fig, axs = plt.subplots(figsize=(12, 4))
+    categorized_df["Duration"] = (pd.to_datetime(categorized_df['End Date']+' '+categorized_df['End Time'])) - (pd.to_datetime(categorized_df['Start Date']+' '+categorized_df['Start Time']))
+    categorized_df["Duration"] = (categorized_df["Duration"].dt.seconds / 3600)
+    byCategory_df = categorized_df.groupby("Category")
+    byCategory_df = byCategory_df.sum()
+    byCategory_df["Percentage"] = ((byCategory_df["Duration"] / byCategory_df["Duration"].sum()) * 100).plot(kind = 'pie', autopct='%1.2f%%')
+    xlabel = "% Time Spent from "+ start.strftime("%m/%d")+ " to " + end.strftime("%m/%d")
+    plt.xlabel(xlabel)
+    plt.ylabel("")
+    avgTimeSpentPerCategory_df = categorized_df.groupby("Category").agg({"Duration" : np.mean}).plot(kind = 'bar',subplots=True)
+    xlabel = "Average Number of Hours Spent"
+    plt.xlabel(xlabel)
+    plt.ylabel("Hours")
+    maxTimeSpentPerCategory_df = categorized_df.groupby("Category").agg({"Duration" : max})
+    minTimeSpentPerCategory_df = categorized_df.groupby("Category").agg({"Duration" : min})
+    
+    
+    
+    return byCategory_df
 class Category():
     '''
     A Category object has the following attributes:
@@ -236,5 +297,7 @@ if __name__ == "__main__":
     
     categories_obj = user_configuration()
     authenticate(categories_obj)
-    categorized_df = object_introspection_using_pandas(categories_obj)
+    start_date, end_date = get_timeline()
+    categorized_df = object_introspection_using_pandas(categories_obj, start_date, end_date)
+    byCategory_df = analysis(categorized_df, start_date, end_date)
     
