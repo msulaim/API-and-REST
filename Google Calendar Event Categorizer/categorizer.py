@@ -215,25 +215,78 @@ def analysis(categorized_df, start, end):
     The following function analyzes the dataframe created, informing the user the percentage of time they spent in the specified categories over
     the timeframe mentioned
     '''
+    df = categorized_df
+    start = start.strftime("%m/%d")
+    end = end.strftime("%m/%d")
     
-    categorized_df["Duration"] = (pd.to_datetime(categorized_df['End Date']+' '+categorized_df['End Time'])) - (pd.to_datetime(categorized_df['Start Date']+' '+categorized_df['Start Time']))
-    categorized_df["Duration"] = (categorized_df["Duration"].dt.seconds / 3600)
-    byCategory_df = categorized_df.groupby("Category")
-    byCategory_df = byCategory_df.sum()
-    byCategory_df["Percentage"] = ((byCategory_df["Duration"] / byCategory_df["Duration"].sum()) * 100).plot(kind = 'pie', autopct='%1.2f%%')
-    xlabel = "% Time Spent from "+ start.strftime("%m/%d")+ " to " + end.strftime("%m/%d")
+    df['Start'] = pd.to_datetime(categorized_df['Start Date']+' '+categorized_df['Start Time'])
+    df['End'] =   pd.to_datetime(categorized_df['End Date']+' '+categorized_df['End Time'])
+    df['Duration'] = ((df['End'] - df['Start']).dt.seconds) / 3600
+    df['Day']= df['Start'].dt.day_name()
+    df['Day'] = pd.Categorical(df['Day'], categories=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],ordered=True)
+    
+    
+    
+    fig, axes = plt.subplots(nrows=2, ncols=2,dpi=50)
+  
+    #Plot % Time Spent per Category between timeframe specified 
+    title = '% Time Spent ' +start+ " - " +end
+    df.groupby('Category')['Duration'].sum().plot( kind = 'pie', autopct='%1.2f%%', ax=axes[0,0], title = title, figsize=(10,10))
+    plt.xlabel(None)
+    plt.ylabel(None)
+     
+    
+    #Plot the average time spent per category 
+    title = 'Average Time Spent ' +start+ " - " +end
+    df.groupby("Category").agg({"Duration" : np.mean}).plot(kind = 'barh', ax=axes[0,1], title=title, figsize=(10,10))
+    xlabel = 'Hours'
+    ylabel = 'Category'
     plt.xlabel(xlabel)
-    plt.ylabel("")
-    avgTimeSpentPerCategory_df = categorized_df.groupby("Category").agg({"Duration" : np.mean}).plot(kind = 'bar',subplots=True)
-    xlabel = "Average Number of Hours Spent"
+    plt.ylabel(ylabel)
+     
+    #Average Time spent per Category in a Week
+    title = 'Average Hours Spent Per Category in a Week'
+    week = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    df.groupby(['Day', 'Category'])['Duration'].mean().sort_index().unstack().plot(kind='bar', ax=axes[1,0], title=title, figsize=(10,10))
+    xlabel = 'Day'
+    ylabel = 'Category'
     plt.xlabel(xlabel)
-    plt.ylabel("Hours")
-    maxTimeSpentPerCategory_df = categorized_df.groupby("Category").agg({"Duration" : max})
-    minTimeSpentPerCategory_df = categorized_df.groupby("Category").agg({"Duration" : min})
+    plt.ylabel(ylabel)
+    
+    #Plot the % Time Spent per Calendar for every category
+    title = 'Time Spent Per Calendar ' +start+ " - " +end
+    df.groupby(['Category','Calendar'])['Duration'].sum().unstack().plot(kind='bar', ax=axes[1,1], title = title, figsize=(10,10))
+    xlabel = 'Category'
+    ylabel = 'Hours'
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+     
+   
     
     
     
-    return byCategory_df
+    
+    
+   
+def plot_results(series, _type, xlabel, ylabel, title, autopct, stack):
+    ''' 
+    The following function plots the results. The % Time Spent per Category is plotted as a pie chart
+    '''
+    if _type == 'pie':
+        series.plot(kind= 'pie', autopct= autopct)
+        
+    elif _type == 'barh':
+        series.unstack().plot(kind = 'barh', stacked=stack)
+    
+    elif _type == 'bar':
+        series.plot(kind = 'bar', stacked=True)
+    
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+        
+      
+    
 class Category():
     '''
     A Category object has the following attributes:
