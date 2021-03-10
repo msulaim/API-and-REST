@@ -215,7 +215,7 @@ def analysis(categorized_df, start, end):
     The following function analyzes the dataframe created, informing the user the percentage of time they spent in the specified categories over
     the timeframe mentioned
     '''
-    fig, axs = plt.subplots(figsize=(12, 4))
+    
     categorized_df["Duration"] = (pd.to_datetime(categorized_df['End Date']+' '+categorized_df['End Time'])) - (pd.to_datetime(categorized_df['Start Date']+' '+categorized_df['Start Time']))
     categorized_df["Duration"] = (categorized_df["Duration"].dt.seconds / 3600)
     byCategory_df = categorized_df.groupby("Category")
