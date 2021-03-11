@@ -29,7 +29,7 @@
 - ***Step 2:***
   - To obtain the *Calendar ID* of the Google Calendar you want to categorize on Google Calendars go to the calendar’s *settings and sharing* -> *Integrate calendar*          ->*Calendar ID* 
   - Create a *.yaml* file which will store your configuration for the program, these configurations will include the email addresses and Calendar IDs for the Google Calendar you want to categorize. Consider the structure shown in [Link to sample.yaml](./sample.yaml), alternatively this file can be found in the *Google Calendar Event Categorizer* directory
-  - Follow the structure shown exactly, refrain from adding: '-' to create members of list, '---' to mark the end of document, '...' to mark the beginning of a document
+  - Follow the structure shown exactly, **refrain from adding:** '-' to create members of list, '---' to mark the end of document, '...' to mark the beginning of a document
   - Save the *.yaml* in the same directory as the code
     
 
