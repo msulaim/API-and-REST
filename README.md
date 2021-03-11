@@ -1,6 +1,6 @@
 The **API-and-REST** repository contains the following projects, more details are contained in the READMEs inside each project's directory:
 
-**Calendar API**:Create a basic API that implements REST principles by using get, post, put and delete using Python and consume it as well
+**Calendar API**: Create a basic API that implements REST principles by using get, post, put and delete using Python and consume it as well
 
 **Crunchbase API**: Consume the Crunchbase API to group industries by their functions
 
