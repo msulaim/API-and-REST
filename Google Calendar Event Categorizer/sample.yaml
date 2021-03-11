@@ -1,0 +1,15 @@
+Name_of_Category_1:
+   email_ids:
+      Name_of_Calendar_1: email address_1
+      Name_of_Calendar_2: email_address_2
+   calendar_ids:
+      Name_of_Calendar_1: Calendar_ID_1
+      Name_of_Calendar_2: Calendar_ID_2
+Name_of_Category_2:
+   email_ids:
+      Name_of_Calendar_3: email address_3
+      Name_of_Calendar_4: email_address_4
+   calendar_ids:
+      Name_of_Calendar_3: Calendar_ID_3
+      Name_of_Calendar_4: Calendar_ID_4
+       
