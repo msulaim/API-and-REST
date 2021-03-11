@@ -260,32 +260,10 @@ def analysis(categorized_df, start, end):
     ylabel = 'Hours'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    
+    plt.savefig('results.png')
      
-   
-    
-    
-    
-    
-    
-   
-def plot_results(series, _type, xlabel, ylabel, title, autopct, stack):
-    ''' 
-    The following function plots the results. The % Time Spent per Category is plotted as a pie chart
-    '''
-    if _type == 'pie':
-        series.plot(kind= 'pie', autopct= autopct)
-        
-    elif _type == 'barh':
-        series.unstack().plot(kind = 'barh', stacked=stack)
-    
-    elif _type == 'bar':
-        series.plot(kind = 'bar', stacked=True)
-    
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(title)
-        
-      
+
     
 class Category():
     '''
