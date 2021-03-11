@@ -20,8 +20,8 @@
 
 **Usage**:
 - You can either download the .zip file from the API-and REST respository or you can clone the repository using *git clone*
-* ***Step 1:***   
-                 *Go to Calendar API Quickstart using the following link: https://developers.google.com/calendar/quickstart/python#step_1_turn_on_the . 
-                 *Enable the Google Calendar API , download the Client Configuration 
-                 *Put credentials.json file into a directory called “.credentials”, this directory needs to be in the same place as the code.  
-                 *The user is also required to create a directory called “.tokens”, this also has to be in the same place as the code.  
+- ***Step 1:***   
+  - Go to Calendar API Quickstart using the following link: https://developers.google.com/calendar/quickstart/python#step_1_turn_on_the . 
+  - Enable the Google Calendar API , download the Client Configuration 
+  - Put credentials.json file into a directory called “.credentials”, this directory needs to be in the same place as the code.  
+  - The user is also required to create a directory called “.tokens”, this also has to be in the same place as the code.  
