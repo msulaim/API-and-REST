@@ -1,3 +1,4 @@
+#Google Calendar Event Categorizer**
 **Purpose**:
 - For most working people, it is very easy to lose track of how they are spending their time. 
 - Having a tool that quickly analyzes how much and where a user spending their time can be extremely helpful in setting priorities, identifying areas for improvement and making informed decisions. 
@@ -34,8 +35,19 @@
 
 - **Step 3:**
   - Run the code from the command line by using *python categorizer.py* or *python3 categorizer.py*
+  - You will be prompted to enter the *name* of the *.yaml* file along with its *extension*
   - If it is your first time running the code, a tab will open in your browser prompting you to *sign in* and allow access to *Quickstart*, ensure that you are signing into your accounts in the same order as specified in the *.yaml* file, additionally the command line will print 'Authenticating: Calendar_name : Email Address.
-  - Your sign in information will be stored in a *.pickle* file which will be stored in ".tokens* directory 
+  - Your sign in information will be stored in a *.pickle* file which will be stored in *".tokens"* directory 
+
+- **Step 4:**
+  - You will be prompted to choose between two options, either choose *timeframe* which allows you to specify the *start* and *end* date or *default* which sets the *start* date 30 days ago and *end* date to 15 days after current date
+ 
+- **Step 5**:
+  - The code could take 2-3 seconds depending on how big a timeframe you have entered, during this time all events in the specified timeframe will be pulled from your Google Calendar, enteries will be created for each one of them in a Dataframe, the Dataframe contains columns that specify for the event which *Category* it belongs to for example *Work*, which *Calendar* is it from for example: its from a calendar called *Company-A* , whether it is *Shared* or *Un Shared* for example the event is a meeting with another user, the *Start Date, Start Time, End Date* and *End Time*. The *Duration* will be determined by subtracting *End Date+Time* from *Start Date+Time*. The results are then plotted for visualization and saved in *results.png*
+  - After the code has stopped running typing in *results.png* in command line will open up the image
+  
+  **Results:**
+  - 
     
 
        
