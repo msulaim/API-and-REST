@@ -48,7 +48,7 @@
   
   ## Results:
   - *results.png* contains a figure containing four subplots: a pie chart *"% Time Spent"* that informs the user what percentage of their time they spent in each category over the timeframe specified, a shorizontal bar chart *"Average TIme Spent Per Category"* which informs the user how much time they spent on average in each category, a stacked bar chart *"Average Time Spent Per Category in a Week"* which informs the user how much on average did they spend in each category every day of the week and lastly a bar chart *"Total Time Spent Per Calendar"* which informs the user how much time they spent in total per calendar
-  - [ ]
+  -[ ]
     
 
        
