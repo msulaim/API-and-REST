@@ -1,5 +1,5 @@
 # Google Calendar Event Categorizer
-**Purpose**:
+## Purpose:
 - For most working people, it is very easy to lose track of how they are spending their time. 
 - Having a tool that quickly analyzes how much and where a user spending their time can be extremely helpful in setting priorities, identifying areas for improvement and making informed decisions. 
 
