@@ -4,3 +4,4 @@ credentials.json
 *.pickle
 user_config.yaml
 test.yaml
+results.png
