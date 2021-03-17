@@ -27,9 +27,11 @@ which calendar to use, email addresses and Calendar IDs
 import yaml
 import gcsa
 import os
+import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import re
 from beautiful_date import *
 from datetime import datetime, date, time, timedelta
 from gcsa.google_calendar import GoogleCalendar
@@ -41,17 +43,13 @@ def user_configuration():
     
     Output: Categories object, which contains a list of Category objects 
     '''
-    valid_file = False
     
     #Perform file handling, if file cannot be read throw exception and prompt user again
-    while not valid_file:
-        filename = input('Enter the input file name, including its extension: ')
-        try:
-            input_file = open(filename, 'r')
-            valid_file = True
-        except IOError:
-            print('There is no file named ', filename)
-            invalid_file = False
+    try:
+        input_file = open('user_config.yaml', 'r')
+    except FileNotFoundError:
+        print(' Exiting program, there is no file named  user_config.yaml',)
+        sys.exit()
 
     #Load the content of the .yaml file, it can contain multiple documents
     data = yaml.load_all(input_file, Loader=yaml.FullLoader)
@@ -84,6 +82,16 @@ def authenticate(categories_obj):
     path_credentials = os.path.join(os.getcwd(),'.credentials','credentials.json')
     file_id = 1
     
+    try:
+        cred = open(path_credentials, 'r')
+    
+    except FileNotFoundError:
+        print('\nExiting program, there is no file named credentials.json, check if you did Step 1 of README/ download credentials.json from Quickstart',)
+        sys.exit()  
+        
+        
+       
+    
     #Extract the email_id and the calendar_id and put it in Email_CalendarID object
     for category_obj in categories_obj.list_of_Category_objs:
         for (key1,value1),(key2,value2) in zip(category_obj.name_calendar_ids_dict.items(), category_obj.name_email_id_dict.items()):
@@ -111,7 +119,7 @@ def authenticate(categories_obj):
 
             #Create an entry in name_calendar_dict, the key is the name and value is authorized calendar
             category_obj.name_calendar_dict[key1] = calendar
-   
+              
     return
 
 
@@ -119,11 +127,12 @@ def get_timeline():
     '''
     The following function prompts the user for the timeframe they want to extract events, if no timeframe then use default of -30/+15 from current day 
     '''
+    p = re.compile("\w*")
     invalid_response = True
     while invalid_response:
         
         timeframe = input("Enter 'timeframe' to specify start and end dates or enter 'default' to use -30/+15 days from current day: ")
-        if timeframe == 'timeframe' or timeframe == 'default':
+        if timeframe == 'timeframe' or p.findall(timeframe):
             invalid_response = False
         else:
             invalid_response = True
