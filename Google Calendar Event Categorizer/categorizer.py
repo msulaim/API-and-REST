@@ -79,14 +79,18 @@ def authenticate(categories_obj):
     it adds the name and the created GoogleCalendar to the respective Category object
     '''
     
-   #Path to access Google Calendar API crednetials
+    #Path to access Google Calendar API crednetials
     path_credentials = os.path.join(os.getcwd(),'.credentials','credentials.json')
     file_id = 1
+    
+    #Create Email_CalendarID object
+    email_calendarID_obj = Email_CalendarID()
     
     for category_obj in categories_obj.list_of_Category_objs:
         print("\nAuthenticating")
         for (key1, value1),(key2, value2) in zip(category_obj.name_calendar_ids_dict.items(), category_obj.name_email_id_dict.items()):
             
+            email_calendarID_obj.addTo(value2, value1)
             #Specify filename and path for the token that will be generated during authentication
             filename = 'token'+str(file_id)+'.pickle'
             path_tokens = os.path.join(os.getcwd(),'.tokens',filename)
@@ -263,8 +267,27 @@ def analysis(categorized_df, start, end):
     
     plt.savefig('results.png')
      
-
+class Email_CalendarID():
+    '''
+    A Email_CalendarID object has the following attritbutes
+        email_calendar_id_dict = empty dictionary whose keys are the email address and values is list of calendar ids
     
+    '''
+    def __init__(self):
+        
+        #Empty dictionary whose keys are the email address and values is list of calendar ids
+        self.email_calendar_id_dict = {}
+        
+    def addTo(self, email, calendar_id):
+        '''
+        The following function adds an email address as the key and appends a value to the list containing calednar ids 
+        '''
+        if email not in self.email_calendar_id_dict.keys():
+            self.email_calendar_id_dict[email] = []
+            self.email_calendar_id_dict[email].append(calendar_id)
+        
+        else:
+            self.email_calendar_id_dict[email].append(calendar_id)
 class Category():
     '''
     A Category object has the following attributes:
@@ -290,7 +313,6 @@ class Category():
         #calendar id
         self.name_calendar_ids_dict = calendar_ids
         
-         
 class Categories():
     
     # Number of Category objects
