@@ -79,7 +79,7 @@ def authenticate(categories_obj):
     it adds the name and the created GoogleCalendar to the respective Category object
     '''
     
-    #Path to access Google Calendar API crednetials
+   #Path to access Google Calendar API crednetials
     path_credentials = os.path.join(os.getcwd(),'.credentials','credentials.json')
     file_id = 1
     
@@ -97,11 +97,11 @@ def authenticate(categories_obj):
             #Perform authentication using the value of name_calendar_ids_dict, the value is the Calendar ID
             calendar = GoogleCalendar(calendar=value1, credentials_path=path_credentials, token_path=path_tokens, save_token=True)
             
-            #Use the addTo function, to add to the name_calendar_dict which maps the name to the GoogleCalendar Object
-            category_obj.addTo(key1,calendar)
-            
+            #Create an entry in name_calendar_dict, the key is the name and value is authorized calendar
+            category_obj.name_calendar_dict[key1] = calendar
             file_id += 1
     
+               
     return
 
 
@@ -171,7 +171,7 @@ def object_introspection_using_pandas(categories_objs, start, end):
         for name,calendar in category_obj.name_calendar_dict.items():
             
             #Call get_events to get events from specified Google Calendar
-            events = get_events(calendar[0],start, end, True)
+            events = get_events(calendar,start, end, True)
             for event in events:
                 
                 unshared = False
@@ -290,24 +290,7 @@ class Category():
         #calendar id
         self.name_calendar_ids_dict = calendar_ids
         
-        
-    def addTo(self, _nameofCalendar, calendar):
-        
-        '''
-        The following function overrides the __add__ method, it sets the key as the name of the calendar
-        if there is no calendar in the dictionary create a new list and append to it, if there just append
-        '''
-        key = _nameofCalendar
-        value = calendar
-        
-        if self.name_calendar_dict.get(key) is None:
-            
-            self.name_calendar_dict[key] = []
-            self.name_calendar_dict[key].append(value)
-        
-        else:
-            self.name_calendar_dict[key].append(value)
-            
+         
 class Categories():
     
     # Number of Category objects
@@ -331,4 +314,3 @@ if __name__ == "__main__":
     start_date, end_date = get_timeline()
     categorized_df = object_introspection_using_pandas(categories_obj, start_date, end_date)
     byCategory_df = analysis(categorized_df, start_date, end_date)
-    
