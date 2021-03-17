@@ -68,8 +68,6 @@ def user_configuration():
             category_obj = Category(key, calendar_email_ids, calendar_ids)
             categories_obj.addTo(category_obj)
     
-            
-    
     return categories_obj
 def authenticate(categories_obj):
     '''    
@@ -79,33 +77,41 @@ def authenticate(categories_obj):
     it adds the name and the created GoogleCalendar to the respective Category object
     '''
     
+    #Dictionary containing keys as email addresses and values as token path
+    email_token_dict = {}
+     
     #Path to access Google Calendar API crednetials
     path_credentials = os.path.join(os.getcwd(),'.credentials','credentials.json')
     file_id = 1
     
-    #Create Email_CalendarID object
-    email_calendarID_obj = Email_CalendarID()
-    
+    #Extract the email_id and the calendar_id and put it in Email_CalendarID object
     for category_obj in categories_obj.list_of_Category_objs:
-        print("\nAuthenticating")
-        for (key1, value1),(key2, value2) in zip(category_obj.name_calendar_ids_dict.items(), category_obj.name_email_id_dict.items()):
+        for (key1,value1),(key2,value2) in zip(category_obj.name_calendar_ids_dict.items(), category_obj.name_email_id_dict.items()):
             
-            email_calendarID_obj.addTo(value2, value1)
-            #Specify filename and path for the token that will be generated during authentication
-            filename = 'token'+str(file_id)+'.pickle'
-            path_tokens = os.path.join(os.getcwd(),'.tokens',filename)
+            if value2 not in email_token_dict.keys():
+                
+                #Specify filename and path for the token that will be generated during authentication
+                filename = 'token'+str(file_id)+'.pickle'
+                path_tokens = os.path.join(os.getcwd(),'.tokens',filename)
+                
+                email_token_dict[value2] = path_tokens
+                
+                print("\nAuthenticating")
+                print(value2)
+                #Authenticate email address
+                auth = GoogleCalendar(calendar=value2, credentials_path=path_credentials, token_path=path_tokens, save_token=True)
+                file_id += 1
+                
+            print("\nPulling data from")
+            #Print to show user that data is being pulled from which calendar
+            print("{}{} {}".format(key1,':', value2))
             
-            #Print to show user that it is authenticating and which email address they should use to sign in
-            print("{}{} {}".format(key2,':', value2))
-            
-            #Perform authentication using the value of name_calendar_ids_dict, the value is the Calendar ID
-            calendar = GoogleCalendar(calendar=value1, credentials_path=path_credentials, token_path=path_tokens, save_token=True)
-            
+            #Create GoogleCalendar object for calendar with specified calendar ID
+            calendar = GoogleCalendar(calendar=value1, credentials_path=path_credentials, token_path=email_token_dict[value2], save_token=True)
+
             #Create an entry in name_calendar_dict, the key is the name and value is authorized calendar
             category_obj.name_calendar_dict[key1] = calendar
-            file_id += 1
-    
-               
+   
     return
 
 
@@ -267,27 +273,7 @@ def analysis(categorized_df, start, end):
     
     plt.savefig('results.png')
      
-class Email_CalendarID():
-    '''
-    A Email_CalendarID object has the following attritbutes
-        email_calendar_id_dict = empty dictionary whose keys are the email address and values is list of calendar ids
-    
-    '''
-    def __init__(self):
-        
-        #Empty dictionary whose keys are the email address and values is list of calendar ids
-        self.email_calendar_id_dict = {}
-        
-    def addTo(self, email, calendar_id):
-        '''
-        The following function adds an email address as the key and appends a value to the list containing calednar ids 
-        '''
-        if email not in self.email_calendar_id_dict.keys():
-            self.email_calendar_id_dict[email] = []
-            self.email_calendar_id_dict[email].append(calendar_id)
-        
-        else:
-            self.email_calendar_id_dict[email].append(calendar_id)
+
 class Category():
     '''
     A Category object has the following attributes:
@@ -296,7 +282,7 @@ class Category():
         name: the name of the category
     '''
     
-    def __init__(self, _nameofCategory, calendar_email_ids, calendar_ids):
+    def __init__(self, _nameofCategory,calendar_email_ids, calendar_ids):
         
         #Name of the category for example "Work"
         self.name = _nameofCategory
@@ -306,12 +292,12 @@ class Category():
         self.name_calendar_dict = {}
         
         
-        #Dictionary where keys are the name of calendar and values are emails
-        self.name_email_id_dict = calendar_email_ids
-        
         #Contains the nested calendar_ids dictionary, where the keys are the name of the calendar and value is
         #calendar id
         self.name_calendar_ids_dict = calendar_ids
+        
+        #Dictionary where keys are the name of the calendars and values are emails
+        self.name_email_id_dict = calendar_email_ids
         
 class Categories():
     
