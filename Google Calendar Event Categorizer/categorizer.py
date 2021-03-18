@@ -48,7 +48,7 @@ def user_configuration():
     try:
         input_file = open('user_config.yaml', 'r')
     except FileNotFoundError:
-        print(' Exiting program, there is no file named  user_config.yaml',)
+        print('Exiting program, there is no file named  user_config.yaml',)
         sys.exit()
 
     #Load the content of the .yaml file, it can contain multiple documents
@@ -82,6 +82,7 @@ def authenticate(categories_obj):
     path_credentials = os.path.join(os.getcwd(),'.credentials','credentials.json')
     file_id = 1
     
+    #Check if credentials.json exists, if not print message and exit
     try:
         cred = open(path_credentials, 'r')
     
@@ -89,7 +90,7 @@ def authenticate(categories_obj):
         print('\nExiting program, there is no file named credentials.json, check if you did Step 1 of README/ download credentials.json from Quickstart',)
         sys.exit()  
         
-        
+    email_match = re.compile(r"@group.calendar.google.com\b")
        
     
     #Extract the email_id and the calendar_id and put it in Email_CalendarID object
@@ -110,6 +111,10 @@ def authenticate(categories_obj):
                 auth = GoogleCalendar(calendar=value2, credentials_path=path_credentials, token_path=path_tokens, save_token=True)
                 file_id += 1
                 
+            if not email_match.findall(value1) and value1 not in email_token_dict.keys():
+                #If a calendar ID is in the form of an email address save it in emai_token dictionary
+                email_token_dict[value1] = path_tokens
+            
             print("\nPulling data from")
             #Print to show user that data is being pulled from which calendar
             print("{}{} {}".format(key1,':', value2))
@@ -120,7 +125,7 @@ def authenticate(categories_obj):
             #Create an entry in name_calendar_dict, the key is the name and value is authorized calendar
             category_obj.name_calendar_dict[key1] = calendar
               
-    return
+    return email_token_dict
 
 
 def get_timeline():
@@ -174,7 +179,7 @@ def get_events(calendar, start_from, end_at, singleEvents):
     
     return events_between_dates
 
-def object_introspection_using_pandas(categories_objs, start, end):
+def object_introspection_using_pandas(categories_objs, start, end, email_ids):
     '''
     The following function creates eight columns:  Category,Calendar,Event Description, Start Time, End Time, Day, Month, Year
     We will iterate over the list of Category objects, access their Google Calendar object and call get_events() on it. We will 
@@ -182,7 +187,7 @@ def object_introspection_using_pandas(categories_objs, start, end):
     '''
     
     #Create an empty dataframe with eight columns: Category,Calendar,Event Description, Start Time, End Time, Day, Month, Year
-    categorized_df = pd.DataFrame(columns=['Category','Calendar','Event Description', 'Shared', 'Un-Shared', 'Start Date', 'End Date', 'Start Time', 'End Time'])
+    categorized_df = pd.DataFrame(columns=['Category','Calendar','Event Description', 'Attendees' ,'Start Date', 'End Date', 'Start Time', 'End Time'])
     
    
     #Iterate over Category objects, calling the get_events mehtod on their Google Calendar, extracting the category name, calendar name and add to DataFrame
@@ -195,6 +200,7 @@ def object_introspection_using_pandas(categories_objs, start, end):
                 
                 unshared = False
                 shared = False
+                oneonone = False
                 category = category_obj.name
                 calendar_name = name
                 desp = getattr(event, "summary")
@@ -215,14 +221,24 @@ def object_introspection_using_pandas(categories_objs, start, end):
                 
                 #Get the attendees of the respective event
                 attendees_of_event = getattr(event, "attendees")
-                
+                attendee_emails = [getattr(attendee,"email") for attendee in attendees_of_event]
+                attendee_emails = set(attendee_emails)
                  #If no attendees present it is a presonal event
-                if len(attendees_of_event) == 0:
+
+                if len(attendees_of_event) == 0 or len(email_ids.intersection(attendee_emails)) > 1:
                      unshared = True
+                     #Create a new unshared entry to add to the DataFrame
+                     new_event_series = pd.Series(data = [category, calendar_name, desp,'unshared',start_date, end_date, start_time, end_time ], index=categorized_df.columns)
+                
+                elif len(attendees_of_event) == 2 and len(attendee_emails.difference(email_ids)) == 1:
+                     oneonone = True
+                     #Create a new one-on-one entry to add to the DataFrame
+                     new_event_series = pd.Series(data = [category, calendar_name, desp,'one-on-one',start_date, end_date, start_time, end_time ], index=categorized_df.columns)
                 else:
                      shared = True
-                #Create a new entry to add to the DataFrame
-                new_event_series = pd.Series(data = [category, calendar_name, desp, shared, unshared, start_date, end_date, start_time, end_time ], index=categorized_df.columns)
+                     #Create a new shared entry to add to the DataFrame
+                     new_event_series = pd.Series(data = [category, calendar_name, desp,'shared',start_date, end_date, start_time, end_time ], index=categorized_df.columns)
+                
                 
                 #Add to the Dataframe
                 categorized_df = categorized_df.append(new_event_series, ignore_index = True)
@@ -246,7 +262,7 @@ def analysis(categorized_df, start, end):
     
     
     
-    fig, axes = plt.subplots(nrows=2, ncols=2,dpi=50)
+    fig, axes = plt.subplots(nrows=2, ncols=3,dpi=50)
   
     #Plot % Time Spent per Category between timeframe specified 
     title = '% Time Spent ' +start+ " - " +end
@@ -273,12 +289,22 @@ def analysis(categorized_df, start, end):
     plt.ylabel(ylabel)
     
     #Plot the % Time Spent per Calendar for every category
-    title = 'Time Spent Per Calendar ' +start+ " - " +end
+    title = '% Time Spent Per Calendar ' +start+ " - " +end
     df.groupby(['Category','Calendar'])['Duration'].sum().unstack().plot(kind='bar', ax=axes[1,1], title = title, figsize=(10,10))
     xlabel = 'Category'
     ylabel = 'Hours'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    
+    
+    #Plot the % Time Spent in Shared, Unshared, One-on-One events
+    title = '% Time Spent in Shared, Unshared, One-on-One Events ' +start+ " - " +end
+    df.groupby(['Category','Calendar'])['Duration'].sum().unstack().plot(kind='bar', ax=axes[1,1], title = title, figsize=(10,10))
+    xlabel = 'Category'
+    ylabel = 'Hours'
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    
     
     plt.savefig('results.png')
      
@@ -327,7 +353,7 @@ class Categories():
 if __name__ == "__main__":
     
     categories_obj = user_configuration()
-    authenticate(categories_obj)
+    email_token_dict = authenticate(categories_obj)
     start_date, end_date = get_timeline()
-    categorized_df = object_introspection_using_pandas(categories_obj, start_date, end_date)
+    categorized_df = object_introspection_using_pandas(categories_obj, start_date, end_date, set(email_token_dict.keys()))
     byCategory_df = analysis(categorized_df, start_date, end_date)
