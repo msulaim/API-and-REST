@@ -1,10 +1,10 @@
 # Google Calendar Event Categorizer
 ## Purpose:
-- For most working people, it is very easy to lose track of how they are spending their time. 
-- Having a tool that quickly analyzes how much and where a user spending their time can be extremely helpful in setting priorities, identifying areas for improvement and making informed decisions. 
+- For most working people, it is very easy to lose track of how and with whom they are spending their time. 
+- Having a tool that quickly analyzes how much and where and with whom a user spending their time can be extremely helpful in setting priorities, identifying areas for improvement and making informed decisions. 
 
 ## Overview:
-- We want to group events from multiple Google Calendars into categories specified by the user. 
+- We want to group events from multiple Google Calendars into categories specified by the user, and inform the user about the type of attendees they are spending their time with. 
 - We also want to provide the user with ways to set their own configurations, such as setting the email addresses whose Google Calendars they want to access, which calendars to use, as well as adding and deleting their own categories.
 
 ## Requirements:
