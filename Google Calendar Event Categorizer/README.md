@@ -53,12 +53,12 @@
     - a bar chart *"Average Unscheduled Hours in a Week"* which informs the user how much time do they have on average by day of week which is unscheduled,
     - a stacked bar chart *"Average Time Spent Per Attendee by Hour of Day"*
 
--  ### *resultsCategory.png* contains a figure containing five subplots: 
-    -  a pie chart *"% Time Spent"* that informs the user what percentage of their time they spent in each category over the timeframe specified, 
-    -  a horizontal bar chart *"Average TIme Spent Per Category"* which informs the user how much time they spent on average in each category, 
-    -  a stacked bar chart *"Average Time Spent Per Category in a Week"* which informs the user how much on average did they spend in each category every day of the week, 
-    -  a bar chart *"Total Time Spent Per Calendar"* which informs the user how much time they spent in total per calendar
-    -  a stacked bar chart *"Average Time Spent Per Category by Hour of Day"*
+- ### *resultsCategory.png* contains a figure containing five subplots: 
+ -  a pie chart *"% Time Spent"* that informs the user what percentage of their time they spent in each category over the timeframe specified, 
+ -  a horizontal bar chart *"Average TIme Spent Per Category"* which informs the user how much time they spent on average in each category, 
+ -  a stacked bar chart *"Average Time Spent Per Category in a Week"* which informs the user how much on average did they spend in each category every day of the week, 
+ -  a bar chart *"Total Time Spent Per Calendar"* which informs the user how much time they spent in total per calendar
+ -  a stacked bar chart *"Average Time Spent Per Category by Hour of Day"*
   
     
 
