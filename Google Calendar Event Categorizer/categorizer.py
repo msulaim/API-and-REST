@@ -225,7 +225,7 @@ def object_introspection_using_pandas(categories_objs, start, end, email_ids):
                 attendee_emails = set(attendee_emails)
                  #If no attendees present it is a presonal event
 
-                if len(attendees_of_event) == 0 or len(email_ids.intersection(attendee_emails)) > 1:
+                if len(attendees_of_event) == 0 or (len(email_ids.intersection(attendee_emails)) > 1 and len(attendee_emails.difference(email_ids)) == 0):
                      unshared = True
                      #Create a new unshared entry to add to the DataFrame
                      new_event_series = pd.Series(data = [category, calendar_name, desp,'unshared',start_date, end_date, start_time, end_time ], index=categorized_df.columns)
@@ -260,53 +260,104 @@ def analysis(categorized_df, start, end):
     df['Day']= df['Start'].dt.day_name()
     df['Day'] = pd.Categorical(df['Day'], categories=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'],ordered=True)
     
-    
-    
-    fig, axes = plt.subplots(nrows=2, ncols=3,dpi=50)
   
     #Plot % Time Spent per Category between timeframe specified 
+    fig, axs = plt.subplots()
     title = '% Time Spent ' +start+ " - " +end
-    df.groupby('Category')['Duration'].sum().plot( kind = 'pie', autopct='%1.2f%%', ax=axes[0,0], title = title, figsize=(10,10))
+    df.groupby('Category')['Duration'].sum().plot( kind = 'pie', autopct='%1.2f%%', title = title, figsize=(7,7), ax=axs)
     plt.xlabel(None)
     plt.ylabel(None)
      
     
     #Plot the average time spent per category 
+    fig, axs = plt.subplots()
     title = 'Average Time Spent ' +start+ " - " +end
-    df.groupby("Category").agg({"Duration" : np.mean}).plot(kind = 'barh', ax=axes[0,1], title=title, figsize=(10,10))
+    df.groupby("Category").agg({"Duration" : np.mean}).plot(kind = 'barh', title=title, figsize=(7,7), ax=axs)
     xlabel = 'Hours'
     ylabel = 'Category'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
      
     #Average Time spent per Category in a Week
+    fig, axs = plt.subplots()
     title = 'Average Hours Spent Per Category in a Week'
     week = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    df.groupby(['Day', 'Category'])['Duration'].mean().sort_index().unstack().plot(kind='bar', ax=axes[1,0], title=title, figsize=(10,10))
+    df.groupby(['Day', 'Category'])['Duration'].mean().sort_index().unstack().plot(kind='bar', title=title, figsize=(7,7), ax=axs)
     xlabel = 'Day'
     ylabel = 'Category'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     
-    #Plot the % Time Spent per Calendar for every category
-    title = '% Time Spent Per Calendar ' +start+ " - " +end
-    df.groupby(['Category','Calendar'])['Duration'].sum().unstack().plot(kind='bar', ax=axes[1,1], title = title, figsize=(10,10))
+    #Plot the Total Time Spent per Calendar for every category
+    fig, axs = plt.subplots()
+    title = 'Total Time Spent Per Calendar ' +start+ " - " +end
+    df.groupby(['Category','Calendar'])['Duration'].sum().unstack().plot(kind='bar', title = title, figsize=(7,7), ax=axs)
     xlabel = 'Category'
     ylabel = 'Hours'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    
     
     #Plot the % Time Spent in Shared, Unshared, One-on-One events
-    title = '% Time Spent in Shared, Unshared, One-on-One Events ' +start+ " - " +end
-    df.groupby(['Category','Calendar'])['Duration'].sum().unstack().plot(kind='bar', ax=axes[1,1], title = title, figsize=(10,10))
+    fig, axs = plt.subplots()
+    title = '% Time Spent in Shared, Unshared, One-on-One Events '
+    df.groupby('Attendees')['Duration'].sum().plot( kind = 'pie', autopct='%1.2f%%', title = title, figsize=(7,7), ax=axs)
+    plt.xlabel(None)
+    plt.ylabel(None)
+    
+    #Plot the average time spent in Shared, Unshared, One-on-One 
+    fig, axs = plt.subplots()
+    title = 'Average Time Spent in Shared, Unshared, One-on-One' +start+ " - " +end
+    df.groupby("Attendees").agg({"Duration" : np.mean}).plot(kind = 'barh', title=title, figsize=(7,7), ax=axs)
+    xlabel = 'Hours'
+    ylabel = 'Category'
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    
+     #Average Time spent in Shared,Unshared, One-on-One in a Week
+    fig, axs = plt.subplots()
+    title = 'Average Time spent in Shared,Unshared, One-on-One in a Week'
+    week = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    df.groupby(['Day', 'Attendees'])['Duration'].mean().sort_index().unstack().plot(kind='bar', title=title, figsize=(7,7), ax=axs)
+    xlabel = 'Day'
+    ylabel = 'Category'
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    
+    fig, axs = plt.subplots()
+    title = 'Total Time Spent Per Calendar in Shared, Unshared, Events' +start+ " - " +end
+    df.groupby(['Attendees','Calendar'])['Duration'].sum().unstack().plot(kind='bar', title = title, figsize=(7,7), ax=axs)
     xlabel = 'Category'
     ylabel = 'Hours'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     
+    fig, axs = plt.subplots()
+    title = 'Average Time Spent per Category by Hour of Day ' +start+ " - " +end
+    df.groupby(['Start Time','Category'])['Duration'].mean().unstack().plot(kind='bar', title = title, figsize=(7,7), ax=axs)
+    xlabel = 'Time of Day'
+    ylabel = 'Hours'
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
     
-    plt.savefig('results.png')
+    fig, axs = plt.subplots()
+    title = 'Average Time Spent Per Attendee by Hour of Day ' +start+ " - " +end
+    df.groupby(['Start Time','Attendees'])['Duration'].mean().unstack().plot(kind='bar', title = title, figsize=(7,7), ax=axs)
+    xlabel = 'Time of Day'
+    ylabel = 'Hours'
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    
+    
+    fig, axs = plt.subplots()
+    title = 'Average Unscheduled Hours in a Week'
+    unscheduled = 12 - df.groupby(['Start Date', 'Day'])['Duration'].sum()
+    unscheduled = unscheduled.groupby('Day').mean().plot(kind='bar', title = title, figsize=(7,7), ax=axs)
+    xlabel = 'Day'
+    ylabel = 'Hours'
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    
+    
      
 
 class Category():
