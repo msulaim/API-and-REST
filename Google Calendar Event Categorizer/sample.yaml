@@ -1,3 +1,4 @@
+# For shared calendars, put the email address containing the shared calendar in email_ids, for example mhshamdan@outlook is shared with mhamdansulaiman@gmail.com, I will put in mhamdansulaiman@gmail.com for the email_ids for mhshamdan@outlook.com, the Calendar ID for mhshamdan@outlook.com will the Calendar IDId 
 Name_of_Category_1:
    email_ids:
       Name_of_Calendar_1: email address_1
