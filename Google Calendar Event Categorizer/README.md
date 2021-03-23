@@ -45,7 +45,7 @@
   - After the code has stopped running typing in *resultsCategory.png* and  *resultsAttendees.png* in command line will open up the images
   
   ## Results:
-  - ### *resultsAttendees.png* contains a figure containing six subplots: 
+  - *resultsAttendees.png* contains a figure containing six subplots: 
     - a pie chart *"% Time Spent in Shared, Unshared, One-on-One"* that informs the user what percentage of their time they spent with which type of attendees over the timeframe specified, 
     - a horizontal bar chart *"Average Time Spent in Shared, Unshared, One-on-One"* which informs the user how much time they spent on average with a type of attendee, 
     - a stacked bar chart *"Average Time Spent Shared, Unshared, One-on-One in a Week"* which informs the user how much on average did they spend with an attendee every day of the week, 
@@ -53,12 +53,12 @@
     - a bar chart *"Average Unscheduled Hours in a Week"* which informs the user how much time do they have on average by day of week which is unscheduled,
     - a stacked bar chart *"Average Time Spent Per Attendee by Hour of Day"*
 
-- ### *resultsCategory.png* contains a figure containing five subplots: 
- -  a pie chart *"% Time Spent"* that informs the user what percentage of their time they spent in each category over the timeframe specified, 
- -  a horizontal bar chart *"Average TIme Spent Per Category"* which informs the user how much time they spent on average in each category, 
- -  a stacked bar chart *"Average Time Spent Per Category in a Week"* which informs the user how much on average did they spend in each category every day of the week, 
- -  a bar chart *"Total Time Spent Per Calendar"* which informs the user how much time they spent in total per calendar
- -  a stacked bar chart *"Average Time Spent Per Category by Hour of Day"*
+- *resultsCategory.png* contains a figure containing five subplots: 
+    -  a pie chart *"% Time Spent"* that informs the user what percentage of their time they spent in each category over the timeframe specified, 
+    -  a horizontal bar chart *"Average TIme Spent Per Category"* which informs the user how much time they spent on average in each category, 
+    -  a stacked bar chart *"Average Time Spent Per Category in a Week"* which informs the user how much on average did they spend in each category every day of the week, 
+    -  a bar chart *"Total Time Spent Per Calendar"* which informs the user how much time they spent in total per calendar
+    -  a stacked bar chart *"Average Time Spent Per Category by Hour of Day"*
   
     
 
