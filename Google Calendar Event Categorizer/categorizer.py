@@ -358,6 +358,8 @@ def analysis(categorized_df, start, end):
     plt.ylabel(ylabel)
     
     
+    
+    
      
 
 class Category():
