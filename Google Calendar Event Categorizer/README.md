@@ -11,6 +11,8 @@
 - Python version 3.9.2 or above
 
 ## Packages:
+- Use *pip install -r requirements.txt* whilst inside the project directory to install required packages
+OR
 - Use *pip install package name* in case you are missing the packages listed below, you can check if a package exist by using *pip show package_name*
 - ***gcsa***: Google Calendar Simple API, we  will be utilizing the *GoogleCalendar* object, *get_method*, *beautiful_date* module
 - ***yaml***: Used to read yaml file provided by the user
