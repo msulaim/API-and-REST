@@ -136,7 +136,7 @@ def get_timeline():
     invalid_response = True
     while invalid_response:
         
-        timeframe = input("Enter 'timeframe' to specify start and end dates or enter 'default' to use -30/+15 days from current day: ")
+        timeframe = input("Enter 'timeframe' to specify start and end dates or press Enter to use -30/+15 days from current day: ")
         if timeframe == 'timeframe' or p.findall(timeframe):
             invalid_response = False
         else:
@@ -267,6 +267,7 @@ def analysis(categorized_df, start, end):
     df.groupby('Category')['Duration'].sum().plot( kind = 'pie', autopct='%1.2f%%', title = title, figsize=(7,7), ax=axs)
     plt.xlabel(None)
     plt.ylabel(None)
+    plt.savefig('resultsCategory1.png')
      
     
     #Plot the average time spent per category 
@@ -277,6 +278,7 @@ def analysis(categorized_df, start, end):
     ylabel = 'Category'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.savefig('resultsCategory2.png')
      
     #Average Time spent per Category in a Week
     fig, axs = plt.subplots()
@@ -287,6 +289,7 @@ def analysis(categorized_df, start, end):
     ylabel = 'Category'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.savefig('resultsCategory3.png')
     
     #Plot the Total Time Spent per Calendar for every category
     fig, axs = plt.subplots()
@@ -296,6 +299,16 @@ def analysis(categorized_df, start, end):
     ylabel = 'Hours'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.savefig('resultsCategory4.png')
+    
+    fig, axs = plt.subplots()
+    title = 'Average Time Spent per Category by Hour of Day ' +start+ " - " +end
+    df.groupby(['Start Time','Category'])['Duration'].mean().unstack().plot(kind='bar', title = title, figsize=(7,7), ax=axs)
+    xlabel = 'Time of Day'
+    ylabel = 'Hours'
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.savefig('resultsCategory5.png')
     
     #Plot the % Time Spent in Shared, Unshared, One-on-One events
     fig, axs = plt.subplots()
@@ -303,6 +316,7 @@ def analysis(categorized_df, start, end):
     df.groupby('Attendees')['Duration'].sum().plot( kind = 'pie', autopct='%1.2f%%', title = title, figsize=(7,7), ax=axs)
     plt.xlabel(None)
     plt.ylabel(None)
+    plt.savefig('resultsAttendees1.png')
     
     #Plot the average time spent in Shared, Unshared, One-on-One 
     fig, axs = plt.subplots()
@@ -312,6 +326,7 @@ def analysis(categorized_df, start, end):
     ylabel = 'Category'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.savefig('resultsAttendees2.png')
     
      #Average Time spent in Shared,Unshared, One-on-One in a Week
     fig, axs = plt.subplots()
@@ -322,6 +337,7 @@ def analysis(categorized_df, start, end):
     ylabel = 'Category'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.savefig('resultsAttendees3.png')
     
     fig, axs = plt.subplots()
     title = 'Total Time Spent Per Calendar in Shared, Unshared, Events' +start+ " - " +end
@@ -330,14 +346,9 @@ def analysis(categorized_df, start, end):
     ylabel = 'Hours'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.savefig('resultsAttendees4.png')    
     
-    fig, axs = plt.subplots()
-    title = 'Average Time Spent per Category by Hour of Day ' +start+ " - " +end
-    df.groupby(['Start Time','Category'])['Duration'].mean().unstack().plot(kind='bar', title = title, figsize=(7,7), ax=axs)
-    xlabel = 'Time of Day'
-    ylabel = 'Hours'
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
+    
     
     fig, axs = plt.subplots()
     title = 'Average Time Spent Per Attendee by Hour of Day ' +start+ " - " +end
@@ -346,7 +357,7 @@ def analysis(categorized_df, start, end):
     ylabel = 'Hours'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    
+    plt.savefig('resultsAttendees5.png')
     
     fig, axs = plt.subplots()
     title = 'Average Unscheduled Hours in a Week'
@@ -356,7 +367,7 @@ def analysis(categorized_df, start, end):
     ylabel = 'Hours'
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    
+    plt.savefig('resultsAttendees6.png')
     
     
     
