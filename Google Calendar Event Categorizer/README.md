@@ -13,7 +13,7 @@
 ## Packages:
 - Use *pip install -r requirements.txt* whilst inside the project directory to install required packages
 
-OR
+  OR
 
 - Use *pip install package name* in case you are missing the packages listed below, you can check if a package exist by using *pip show package_name*
 - ***gcsa***: Google Calendar Simple API, we  will be utilizing the *GoogleCalendar* object, *get_method*, *beautiful_date* module
