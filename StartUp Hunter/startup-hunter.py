@@ -26,6 +26,7 @@ import time
 import webbrowser
 from winreg import HKEY_CURRENT_USER, OpenKey, QueryValueEx
 import re
+from datetime import date
 
 def default_browser():
     '''
@@ -44,35 +45,54 @@ def default_browser():
         default_browser = default_browser.lower()
     
     #Dictionary which maps the name of browser to its webdriver function
-    name_webdriver_dict = {
-                            'chrome': webdriver.Chrome(ChromeDriverManager().install()), 
-                            'chromium': webdriver.Chrome(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), 
-                            'firefox': webdriver.Firefox(executable_path=GeckoDriverManager().install())
-                          }
-    #Create regex for matching the name of the default browser and the driver to use 
-    for name, web_driver in name_webdriver_dict.items():
+    name_webdriver_dict = {}
+    names = ['chrome', 'chromium', 'firefox']
+    
+    
+    #Create regex for matching the name of the default browser and the driver to use, install the driver to use 
+    for name in names:
         r = re.compile(name)
         if r.match(default_browser):
-            driver = web_driver
-            break
+            if name == 'chrome':
+                driver = webdriver.Chrome(ChromeDriverManager().install())
+            elif name == 'chromium':
+                driver = webdriver.Chrome(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
+            elif name == 'firefox':
+                driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+            driver.minimize_window()
+            break    
     
     return driver
     
-def screenshot():
+def screenshot(name, url, driver):
     '''
-    The following function takes a url as parameter and captures a screenshot of the website, saving the result in the current directory
+    ->Input: 
+            name ~ string
+            url ~ string
+            driver ~ webdriver for default browser
+    ->Purpose: The following function takes a url as parameter and captures a screenshot of the website, saving the result in the current directory
 
     '''
+
+    #Open the url in the default browser
+    driver.get(url)
+    #Allow page to load in browser
+    time.sleep(10)
+
+    #Today's date
+    today = date.today()
+    today = today.strftime("%m-%d-%y")
     
-    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install()) 
-
-    driver.get("https://www.youtube.com/")
-    time.sleep(1)
-
-    #driver.save_screenshot("screenshot1.jpg")
+    #Save the screenshot in the same directory as the code
+    file = '['+name+']'+'['+today+']'+'.jpg'
+    driver.save_screenshot(file)
+    driver.close()
     driver.quit()
-    print("end...")
+    print('Screenshot saved')
+   
 
 if __name__ == "__main__":
-    default_browser()
-    #screenshot()
+    driver = default_browser()
+    name = input('Enter name of website, no need for https:// or www. or .com \n-> eg: pinterest: ')
+    url = 'https://www.' + name + '.com/'
+    screenshot(name, url, driver)
