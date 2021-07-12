@@ -3,6 +3,10 @@
 - For most working people, it is very easy to lose track of how and with whom they are spending their time. 
 - Having a tool that quickly analyzes how much and where and with whom a user spending their time can be extremely helpful in setting priorities, identifying areas for improvement and making informed decisions. 
 
+
+## Technical Specification:
+https://docs.google.com/document/d/1PoXjeuyj6zkz24b114ulz7Fx1XcxPmNok6WSgZHYVp8/edit#heading=h.5u1c9kyey9fp
+
 ## Overview:
 - We want to group events from multiple Google Calendars into categories specified by the user, and inform the user about the type of attendees they are spending their time with. 
 - We also want to provide the user with ways to set their own configurations, such as setting the email addresses whose Google Calendars they want to access, which calendars to use, as well as adding and deleting their own categories.
